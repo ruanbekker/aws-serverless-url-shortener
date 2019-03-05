@@ -2,7 +2,7 @@ import os
 import json
 import boto3
 
-ddb = boto3.resource('dynamodb', region_name = 'eu-west-1').Table('url-shortener')
+ddb = boto3.resource('dynamodb', region_name = 'eu-west-1').Table('url-shortener-table')
 
 def lambda_handler(event, context):
     short_id = event.get('short_id')
