@@ -1,0 +1,59 @@
+---
+swagger: "2.0"
+info:
+  version: "2018-10-08T23:43:53Z"
+  title: "url-shortener-api"
+host: "tiny.yourdomain.com"
+schemes:
+- "https"
+paths:
+  /create:
+    post:
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:${ACCOUNT_ID}:function:url-shortener-create/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+  /t/{shortid}:
+    get:
+      consumes:
+      - "application/json"
+      parameters:
+      - name: "shortid"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        301:
+          description: "301 response"
+          headers:
+            Location:
+              type: "string"
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:${ACCOUNT_ID}:function:url-shortener-retrieve/invocations"
+        responses:
+          default:
+            statusCode: "301"
+            responseParameters:
+              method.response.header.Location: "integration.response.body.location"
+        passthroughBehavior: "when_no_templates"
+        httpMethod: "POST"
+        requestTemplates:
+          application/json: "{\n    \"short_id\": \"$input.params('shortid')\"\n}"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws"
+definitions:
+  Empty:
+    type: "object"
+    title: "Empty Schema"
